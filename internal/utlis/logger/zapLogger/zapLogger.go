@@ -11,21 +11,21 @@ import (
 	"github.com/AmitKarnam/KeyCloak/internal/utlis/logger"
 )
 
-var KClogger *zap.Logger
+var KeyCloaklogger *zap.SugaredLogger
 
 type ZapLogging struct{}
 
-var _ logger.KClogging = &ZapLogging{}
+var _ logger.Log = &ZapLogging{}
 
 func (zp *ZapLogging) GenerateLogger() {
-	KClogger = initLogger()
+	KeyCloaklogger = initLogger()
 
 	// Sync method is used to flush any buffered log entries to the underlying output.
-	defer KClogger.Sync()
+	defer KeyCloaklogger.Sync()
 }
 
-func initLogger() *zap.Logger {
-	currentDate := time.Now().Format("2023-01-05")
+func initLogger() *zap.SugaredLogger {
+	currentDate := time.Now().Format("2006-01-02")
 	logFileName := fmt.Sprintf("logs/%s-log-%s.log", "keycloak", currentDate)
 
 	logRotator := &lumberjack.Logger{
@@ -49,5 +49,5 @@ func initLogger() *zap.Logger {
 
 	// Building the logger using the core
 	logger := zap.New(core, zap.AddCaller())
-	return logger
+	return logger.Sugar()
 }
