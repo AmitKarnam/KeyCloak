@@ -4,12 +4,16 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/AmitKarnam/KeyCloak/database/sqlite"
 	"github.com/AmitKarnam/KeyCloak/internal/internalerrors"
-	"github.com/AmitKarnam/KeyCloak/internal/utlis/logger/zapLogger"
+	"github.com/AmitKarnam/KeyCloak/internal/utils/logger/zapLogger"
+	"github.com/AmitKarnam/KeyCloak/internal/utils/masterkeygenerator"
+	"github.com/AmitKarnam/KeyCloak/internal/utils/scheduler/databasencryptionscheduler"
 	models "github.com/AmitKarnam/KeyCloak/models"
 	"github.com/AmitKarnam/KeyCloak/server"
 )
@@ -17,7 +21,7 @@ import (
 // cmdServerCmd represents the cmdServer command
 var cmdServerCmd = &cobra.Command{
 	Use:   "server",
-	Short: "",
+	Short: "Start REST server and initialize required modules.",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
@@ -42,8 +46,31 @@ var cmdServerCmd = &cobra.Command{
 		zapLogger.KeyCloaklogger.Infof("Successfully running KeyCloak REST Server.")
 
 		// To Do
-		// Initialize the master key scheduler. As a part of initialisation it should generate a
-		// master key and store it in the desired location.
+
+		// Create the file to store master key and then call the masterkey-generator module
+		f, err := os.OpenFile("./internal/random.txt", os.O_CREATE|os.O_EXCL, 0666)
+		if err != nil {
+			zapLogger.KeyCloaklogger.Errorf("Error creating file to store master key: %v", err)
+			return err
+		}
+		defer f.Close()
+
+		zapLogger.KeyCloaklogger.Infof("File to store master key created successfully")
+
+		err = masterkeygenerator.MasterKeyHandler()
+		if err != nil {
+			return err
+		}
+
+		zapLogger.KeyCloaklogger.Infof("Master Key generated and stored successfully")
+
+		// Initialize the master key scheduler.
+		masterKeySched := databasencryptionscheduler.Init()
+		err = masterKeySched.StartScheduler()
+		if err != nil {
+			return err
+		}
+		zapLogger.KeyCloaklogger.Infof("Successfully running KeyCloak Master Key Scheduler.")
 
 		if err := wg.Wait(); err != nil {
 			return err

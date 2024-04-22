@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/AmitKarnam/KeyCloak/controllers"
-	"github.com/AmitKarnam/KeyCloak/internal/utlis/logger/zapLogger"
+	"github.com/AmitKarnam/KeyCloak/internal/utils/logger/zapLogger"
 )
 
 func InitRouter() (*gin.Engine, error) {
@@ -39,9 +39,9 @@ func InitRouter() (*gin.Engine, error) {
 			versionGroup := apiGroup.Group("v1")
 			{
 				secretEngineGroup := versionGroup.Group("secretengine")
-				secretEngineGroup.GET("", func(c *gin.Context) {
-					c.JSON(http.StatusOK, gin.H{"Secrets GET": "GET Endpoint for secret engine"})
-				})
+				secretEngineController := controllers.SecretEngineController{}
+				secretEngineGroup.GET("", secretEngineController.Get)
+				secretEngineGroup.POST("", secretEngineController.Post)
 
 				zapLogger.KeyCloaklogger.Infof("Secret Engine Cotroller Initialized")
 

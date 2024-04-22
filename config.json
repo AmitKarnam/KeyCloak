@@ -1,0 +1,4 @@
+{
+    "masterKeyFilePath": "./internal/random.txt",
+    "DBpath":"keycloak.db"
+}

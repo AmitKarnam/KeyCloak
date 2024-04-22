@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/AmitKarnam/KeyCloak/internal/utlis/logger"
+	"github.com/AmitKarnam/KeyCloak/internal/utils/logger"
 )
 
 var KeyCloaklogger *zap.SugaredLogger
