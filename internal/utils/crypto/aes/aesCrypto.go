@@ -85,7 +85,6 @@ func (a *AES) Decrypt(key, cipherHex string) (string, error) {
 
 func newCipherBlock(key string) (cipher.Block, error) {
 	hasher := sha256.New()
-	fmt.Fprint(hasher, key)
 	cipherKey := hasher.Sum(nil)
 	return aes.NewCipher(cipherKey)
 }

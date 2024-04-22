@@ -59,6 +59,7 @@ var cmdServerCmd = &cobra.Command{
 
 		err = masterkeygenerator.MasterKeyHandler()
 		if err != nil {
+			zapLogger.KeyCloaklogger.Errorf("Error initializing master key, during server start: %v", err)
 			return err
 		}
 
@@ -68,6 +69,7 @@ var cmdServerCmd = &cobra.Command{
 		masterKeySched := databasencryptionscheduler.Init()
 		err = masterKeySched.StartScheduler()
 		if err != nil {
+			zapLogger.KeyCloaklogger.Errorf("Error initializing master key scheduler, during server start: %v", err)
 			return err
 		}
 		zapLogger.KeyCloaklogger.Infof("Successfully running KeyCloak Master Key Scheduler.")

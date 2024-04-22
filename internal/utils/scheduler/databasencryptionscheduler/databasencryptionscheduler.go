@@ -1,6 +1,8 @@
 package databasencryptionscheduler
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/go-co-op/gocron"
@@ -32,8 +34,7 @@ func (m *databasencryptionscheduler) StartScheduler() error {
 	s := gocron.NewScheduler(time.UTC)
 	_, err := s.Cron(scheduler.MidNightSced).Do(task)
 	if err != nil {
-		zapLogger.KeyCloaklogger.Errorf("Error while running master key scheduler: %v", err)
-		return err
+		return errors.New(fmt.Sprintf("Error while starting master key scheduler: %v", err))
 	}
 
 	s.StartAsync()

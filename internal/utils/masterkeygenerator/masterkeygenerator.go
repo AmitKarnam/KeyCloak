@@ -2,6 +2,8 @@ package masterkeygenerator
 
 import (
 	"crypto/rand"
+	"errors"
+	"fmt"
 	"os"
 
 	internalCrypto "github.com/AmitKarnam/KeyCloak/internal/utils/crypto"
@@ -27,8 +29,7 @@ func generateMasterKey() ([]byte, error) {
 	key := make([]byte, internalCrypto.KeySize)
 	_, err := rand.Read(key)
 	if err != nil {
-		zapLogger.KeyCloaklogger.Errorf("Error generating master key : %v", err)
-		return nil, err
+		return nil, errors.New(fmt.Sprintf("Error generating master key : %v", err))
 	}
 
 	zapLogger.KeyCloaklogger.Infof("Generated master key successfully")
@@ -42,15 +43,13 @@ func storeMasterKey(masterKey []byte) error {
 	f, err := os.OpenFile("./internal/random.txt", os.O_RDWR, 0666)
 	if err != nil {
 		// thinking of not passing the error into the logs as it gives away the destination of the file.
-		zapLogger.KeyCloaklogger.Errorf("Error opening file to store master key : %v", err)
-		return err
+		return errors.New(fmt.Sprintf("Error opening file to store master key : %v", err))
 	}
 	defer f.Close()
 
 	_, err = f.Write(masterKey)
 	if err != nil {
-		zapLogger.KeyCloaklogger.Errorf("Error writing master key into the file : %v", err)
-		return err
+		return errors.New(fmt.Sprintf("Error writing master key into the file : %v", err))
 	}
 
 	zapLogger.KeyCloaklogger.Infof("Successfully stored master key into the file.")
