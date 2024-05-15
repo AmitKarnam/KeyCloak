@@ -8,6 +8,7 @@ import (
 	"github.com/AmitKarnam/KeyCloak/database/sqlite"
 	"github.com/AmitKarnam/KeyCloak/internal/internalerrors"
 	"github.com/AmitKarnam/KeyCloak/internal/utils/logger/zapLogger"
+	SEValidator "github.com/AmitKarnam/KeyCloak/internal/utils/validators/secretEngineValidator"
 	"github.com/AmitKarnam/KeyCloak/models"
 )
 
@@ -48,6 +49,13 @@ func (sec *SecretEngineController) Post(c *gin.Context) {
 	}
 
 	// Call Validate on the se variable to validate the secret engine type
+	var secretEngnineValidation SEValidator.SecretEngineValidator
+	err := secretEngnineValidation.Validate(se)
+	if err != nil {
+		//log error
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	conn, err := sqlite.DB.GetConnection()
 	if err != nil {

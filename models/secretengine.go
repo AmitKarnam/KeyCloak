@@ -7,7 +7,16 @@ import (
 )
 
 type EncryptionStrategy string
+
 type StorageBackend json.RawMessage
+
+func (sb StorageBackend) MarshalJSON() ([]byte, error) {
+	return []byte(sb), nil
+}
+func (sb *StorageBackend) UnmarshalJSON(data []byte) error {
+	*sb = append((*sb)[0:0], data...)
+	return nil
+}
 
 const (
 	AES EncryptionStrategy = "aes"
