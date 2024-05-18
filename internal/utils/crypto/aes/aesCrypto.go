@@ -10,19 +10,23 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/AmitKarnam/KeyCloak/internal/utlis/crypto"
+	internalCrypto "github.com/AmitKarnam/KeyCloak/internal/utils/crypto"
 )
 
 // AES Type which implements methods of crypto type
 type AES struct{}
 
-var _ crypto.Crypto = &AES{}
+var _ internalCrypto.Crypto = &AES{}
 
 // Encrypt method for AES
 func (a *AES) Encrypt(key, plainText string) (string, error) {
 
 	if key == "" {
-		return "", errors.New("empty key not allowed.")
+		return "", errors.New("empty key not allowed")
+	}
+
+	if len(key) < internalCrypto.KeySize {
+		return "", errors.New("key too short")
 	}
 
 	block, err := newCipherBlock(key)
@@ -48,7 +52,11 @@ func (a *AES) Encrypt(key, plainText string) (string, error) {
 func (a *AES) Decrypt(key, cipherHex string) (string, error) {
 
 	if key == "" {
-		return "", errors.New("empty key not allowed.")
+		return "", errors.New("empty key not allowed")
+	}
+
+	if len(key) < internalCrypto.KeySize {
+		return "", errors.New("key too short")
 	}
 
 	block, err := newCipherBlock(key)
@@ -77,7 +85,6 @@ func (a *AES) Decrypt(key, cipherHex string) (string, error) {
 
 func newCipherBlock(key string) (cipher.Block, error) {
 	hasher := sha256.New()
-	fmt.Fprint(hasher, key)
 	cipherKey := hasher.Sum(nil)
 	return aes.NewCipher(cipherKey)
 }

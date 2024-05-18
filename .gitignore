@@ -1,1 +1,15 @@
 .scannerwork
+Storage.txt
+Learning.txt
+
+# VSC files
+.vscode
+
+# database file
+keycloak.db
+
+# binary executable of server
+KeyCloak
+
+# log file
+logs
